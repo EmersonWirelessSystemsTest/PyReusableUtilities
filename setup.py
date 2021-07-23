@@ -26,7 +26,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    packages=["src"],
+    packages=["PyReusableUtilities"],
     include_package_data=True,
     install_requires=[],
     package_data={},
