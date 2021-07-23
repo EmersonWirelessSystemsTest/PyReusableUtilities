@@ -28,3 +28,4 @@ def add_folders_to_path(starting_file: str, levels_up: int = 0) -> None:
     for dirpath, dirnames, filenames in os.walk(starting_path):
         for dirname in dirnames:
             path_to_add = Path(dirpath, dirname)
+            sys.path.append(path_to_add)
