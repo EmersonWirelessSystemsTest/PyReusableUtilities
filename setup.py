@@ -14,8 +14,8 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="PyReusableUtilities",
-    version="1.0.0",
-    description="Contains a collection of libraries and software for working with Rosemount HART devices.",
+    version="1.0.1",
+    description="Contains a collection of libraries and software meant to be reused across projects",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/EmersonWirelessSystemsTest/PyReusableUtilities",
@@ -23,6 +23,7 @@ setup(
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
