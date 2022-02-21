@@ -37,3 +37,18 @@ def add_folders_to_path(starting_file: str, levels_up: int = 0, prefixes_to_skip
             
             if add_to_path:
                 sys.path.append(str(path_to_add))
+
+
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+        print(sys._MEIPASS)
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    if not os.path.exists(os.path.join(base_path, relative_path)):
+        base_path = os.path.abspath(__file__)
+        base_path = os.path.dirname(base_path)
+
+    return os.path.join(base_path, relative_path)
