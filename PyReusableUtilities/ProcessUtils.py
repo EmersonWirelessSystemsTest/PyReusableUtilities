@@ -1,5 +1,8 @@
+import sys
 from enum import Enum
 from dataclasses import dataclass
+from os import PathLike
+from pathlib import Path
 from subprocess import Popen, PIPE
 from time import sleep
 from threading import Thread
@@ -64,3 +67,26 @@ def iterate_process_stream_lines(process: Popen, encoding: str = "utf-8") -> Gen
             yield incoming_lines.pop(0)
         else:
             sleep(0.01)
+
+
+def spawn_subprocess(*args: List[str]) -> Popen:
+    """
+    This will spawn a subprocess with stdout and stderr set to PIPE correctly, and the resulting process will be returned to the user.
+    This is just a convenience function and is not necessary to be used. Below is an example of how this would be used compared to Popen().
+
+    process = subprocess.Popen(["python", "-c", "import sys;print(sys.executable)"], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+
+    process = spawn_subprocess("python", "-c", "import sys;print(sys.executable)")
+    """
+    return Popen(args, stdout = PIPE, stderr = PIPE)
+
+
+def spawn_python_subprocess(script: PathLike, *args: List[str]) -> Popen:
+    """
+    Runs a Python script using the same environment as the currently executing interpreter.
+    The args should be the path to a Python script (as a string) followed by any command line arguments.
+    """
+    python_path = Path(sys.executable)
+    first_args = (str(python_path), str(script))
+    total_args = first_args + args
+    return spawn_subprocess(*total_args)
