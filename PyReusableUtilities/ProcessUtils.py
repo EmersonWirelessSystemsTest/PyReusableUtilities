@@ -1,4 +1,3 @@
-import os
 import sys
 from enum import Enum
 from dataclasses import dataclass
@@ -8,12 +7,6 @@ from subprocess import Popen, PIPE
 from time import sleep
 from threading import Thread
 from typing import IO, Generator, List, Callable, Union
-from uuid import uuid4
-
-
-_OUTPUT_STREAM_FLUSH_IMPORT = """if __name__ == "__main__":
-    from PyReusableUtilities.ProcessUtils import start_flushing_stdout_stderr
-    start_flushing_stdout_stderr()"""
 
 
 class eLineSource(Enum):
@@ -26,25 +19,6 @@ class eLineSource(Enum):
 class CategorizedLine:
     data: Union[str, bytes]
     source: eLineSource
-
-
-def _cleanup_script_file_after_process_finishes(script: PathLike, process: Popen):
-    while True:
-        if process.poll() is not None:
-            if Path(script).exists():
-                os.remove(script)
-                return
-
-
-def _keep_flushing_stdout_stderr():
-    while True:
-        sys.stdout.flush()
-        sys.stderr.flush()
-        sleep(0.01)
-
-
-def start_flushing_stdout_stderr():
-    Thread(target = _keep_flushing_stdout_stderr, daemon = True, name = "OutputStreamFlushing").start()
 
 
 def _read_stream_lines(stream: IO[bytes], source: eLineSource, encoding: str, buffer: list, is_process_done_func: Callable[[], bool]):
@@ -111,21 +85,11 @@ def spawn_python_subprocess(script: PathLike, *args: List[str]) -> Popen:
     """
     Runs a Python script using the same environment as the currently executing interpreter.
     The args should be the path to a Python script (as a string) followed by any command line arguments.
+    
+    The Python executable will always be called with the -u switch to make the stdout and stderr streams unbuffered.
     """
-    # Ensure the script starts off with spawning a thread to keep flushing the output streams
-    used_script = script
-    script_text = Path(script).read_text()
-    if not script_text.startswith(_OUTPUT_STREAM_FLUSH_IMPORT):
-        used_script = Path(script).absolute().with_name(".temp_py." + str(uuid4()))
-        with open(used_script, "w") as f:
-            f.write(_OUTPUT_STREAM_FLUSH_IMPORT + "\n")
-            f.write(script_text)
-
+    # Get the args that should be used to launch the program
     python_path = Path(sys.executable)
-    first_args = (str(python_path), str(used_script))
+    first_args = (str(python_path), "-u", str(script))
     total_args = first_args + args
-
-    process = spawn_subprocess(*total_args)
-    if used_script != script:
-        Thread(target = _cleanup_script_file_after_process_finishes, args = (used_script, process), daemon = True, name = "ScriptCleanupThread").start()
-    return process
+    return spawn_subprocess(*total_args)
