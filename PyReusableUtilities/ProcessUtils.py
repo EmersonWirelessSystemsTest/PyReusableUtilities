@@ -69,7 +69,7 @@ def iterate_process_stream_lines(process: Popen, encoding: str = "utf-8") -> Gen
             sleep(0.01)
 
 
-def spawn_subprocess(*args: List[str]) -> Popen:
+def spawn_subprocess(*args: str) -> Popen:
     """
     This will spawn a subprocess with stdout and stderr set to PIPE correctly, and the resulting process will be returned to the user.
     This is just a convenience function and is not necessary to be used. Below is an example of how this would be used compared to Popen().
@@ -81,7 +81,7 @@ def spawn_subprocess(*args: List[str]) -> Popen:
     return Popen(args, stdout = PIPE, stderr = PIPE)
 
 
-def spawn_python_subprocess(script: PathLike, *args: List[str]) -> Popen:
+def spawn_python_subprocess(script: PathLike, *args: str) -> Popen:
     """
     Runs a Python script using the same environment as the currently executing interpreter.
     The args should be the path to a Python script (as a string) followed by any command line arguments.
