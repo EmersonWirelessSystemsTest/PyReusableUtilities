@@ -14,7 +14,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="PyReusableUtilities",
-    version="1.1.2",
+    version="1.2.0",
     description="Contains a collection of libraries and software meant to be reused across projects",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -26,6 +26,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     packages=["PyReusableUtilities"],
     include_package_data=True,
