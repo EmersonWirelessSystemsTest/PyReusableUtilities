@@ -1,12 +1,16 @@
 import os
 import sys
 from pathlib import Path
+from typing import Union, Generator
 
 
-def walk_files(path: str) -> str:
+def walk_files(path: str) -> Generator[Path, None, None]:
+    """
+    A wrapper around os.walk() that yields all filepaths as Path objects rather than the 3-tuple from os.walk().
+    """
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
-            yield os.path.join(dirpath, filename)
+            yield Path(dirpath).joinpath(filename)
 
 
 def add_folders_to_path(starting_file: str, levels_up: int = 0, prefixes_to_skip: list = ["."]) -> None:
@@ -39,11 +43,17 @@ def add_folders_to_path(starting_file: str, levels_up: int = 0, prefixes_to_skip
                 sys.path.append(str(path_to_add))
 
 
-def resource_path(relative_path):
+def resource_path(relative_path: Union[str, os.PathLike], print_meipass: bool = False):
+    """
+    This is used to locate resources when using PyInstaller.
+    It wlil first search in extracted directory, then the directory of the executable, and finally the directory of the file in which this function is defined.
+    """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
-        print(sys._MEIPASS)
+        if print_meipass:
+            print(sys._MEIPASS)
+
     except Exception:
         base_path = os.path.abspath(".")
 
