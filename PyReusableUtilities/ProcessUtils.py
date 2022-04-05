@@ -62,7 +62,7 @@ def iterate_process_stream_lines(process: Popen, encoding: str = "utf-8") -> Gen
     stderr_thread.start()
 
     # Continue yielding lines until both the stdout and stderr threads finish (indicating the process finished and all lines were read out)
-    while stdout_thread.is_alive() or stderr_thread.is_alive():
+    while stdout_thread.is_alive() or stderr_thread.is_alive() or len(incoming_lines) > 0:
         if len(incoming_lines) > 0:
             yield incoming_lines.pop(0)
         else:
