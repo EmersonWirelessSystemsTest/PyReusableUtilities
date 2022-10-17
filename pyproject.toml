@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "pyreusableutilities"
+version = "1.2.3"
+description = "Contains a collection of libraries and software meant to be reused across projects."
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
