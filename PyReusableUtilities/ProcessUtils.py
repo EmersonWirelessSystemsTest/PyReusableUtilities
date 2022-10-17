@@ -1,9 +1,9 @@
-import sys
 from enum import Enum
 from dataclasses import dataclass
 from os import PathLike
 from pathlib import Path
 from subprocess import Popen, PIPE
+from sys import executable as sys_executable
 from time import sleep
 from threading import Thread
 from typing import IO, Generator, List, Callable, Union
@@ -21,7 +21,7 @@ class CategorizedLine:
     source: eLineSource
 
 
-def _read_stream_lines(stream: IO[bytes], source: eLineSource, encoding: str, buffer: list, is_process_done_func: Callable[[], bool]):
+def _read_stream_lines(stream: IO[bytes], source: eLineSource, encoding: str, buffer: List[CategorizedLine], is_process_done_func: Callable[[], bool]) -> None:
     """
     This process should not be called by the end-user. This is used internally by iterate_process_stream_lines().
     """
@@ -49,6 +49,13 @@ def iterate_process_stream_lines(process: Popen, encoding: str = "utf-8") -> Gen
     
     Strings are assumed to be UTF-8, but this can be overridden with the encoding parameter. If encoding is set to None, the
     raw bytes will be returned.
+
+    Args:
+        process: The Popen object over which the stdout and stderr streams should be iterated.
+        encoding: The text encoding of the `process`.
+
+    Returns:
+        A generator yielding `CategorizedLine` objects as the `process` sends data to stdout and stderr.
     """
     incoming_lines: List[CategorizedLine] = []
 
@@ -62,7 +69,7 @@ def iterate_process_stream_lines(process: Popen, encoding: str = "utf-8") -> Gen
     stderr_thread.start()
 
     # Continue yielding lines until both the stdout and stderr threads finish (indicating the process finished and all lines were read out)
-    while stdout_thread.is_alive() or stderr_thread.is_alive() or len(incoming_lines) > 0:
+    while stdout_thread.is_alive() or stderr_thread.is_alive() or (len(incoming_lines) > 0):
         if len(incoming_lines) > 0:
             yield incoming_lines.pop(0)
         else:
@@ -74,9 +81,13 @@ def spawn_subprocess(*args: str) -> Popen:
     This will spawn a subprocess with stdout and stderr set to PIPE correctly, and the resulting process will be returned to the user.
     This is just a convenience function and is not necessary to be used. Below is an example of how this would be used compared to Popen().
 
+    ```python
+    # Using Popen()
     process = subprocess.Popen(["python", "-c", "import sys;print(sys.executable)"], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 
+    # Using spawn_subprocess()
     process = spawn_subprocess("python", "-c", "import sys;print(sys.executable)")
+    ```
     """
     return Popen(args, stdout = PIPE, stderr = PIPE)
 
@@ -87,9 +98,16 @@ def spawn_python_subprocess(script: PathLike, *args: str) -> Popen:
     The args should be the path to a Python script (as a string) followed by any command line arguments.
     
     The Python executable will always be called with the -u switch to make the stdout and stderr streams unbuffered.
+
+    Args:
+        script: The path on the filesystem of a Python script to be run.
+        args: The command line arguments to call with the Python script.
+
+    Returns:
+        A Popen object normally returned by the `subprocess` module.
     """
     # Get the args that should be used to launch the program
-    python_path = Path(sys.executable)
+    python_path = Path(sys_executable)
     first_args = (str(python_path), "-u", str(script))
     total_args = first_args + args
     return spawn_subprocess(*total_args)

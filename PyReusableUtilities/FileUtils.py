@@ -15,15 +15,12 @@ def acquire_file_lock(filepath: Union[str, PathLike], timeout_sec: float = None)
     This function MUST be called as a context manager (using the "with" keyword) to ensure setup and cleanup are done correctly.
     No object is returned by the context manager.
 
-    Parameters:
-    filepath (PathLike): The path to the file for which a lock is to be acquired.
-    timeout_sec (float): An optional timeout (in seconds) on how long to wait for the file to avoid getting stuck.
+    Args:
+        filepath: The path to the file for which a lock is to be acquired.
+        timeout_sec: An optional timeout (in seconds) of how long to wait for the file to avoid getting stuck.
 
     Raises:
-    TimeoutError: If the lock cannot be acquired within timeout_sec seconds, a TimeoutError will be raised.
-
-    Yields:
-    None
+        TimeoutError: If the lock cannot be acquired within timeout_sec seconds, a TimeoutError will be raised.
     """
     # Calculate the datetime at which a TimeoutError should be raised (a timeout of None is actually just 100 years in the future)
     timeout_dt = datetime.now() + timedelta(days = 365 * 100)
@@ -31,17 +28,17 @@ def acquire_file_lock(filepath: Union[str, PathLike], timeout_sec: float = None)
         timeout_dt = datetime.now() + timedelta(seconds = timeout_sec)
     timeout_msg = "A lock could not be acquired before the specified timeout"
 
-    # Keep polling to see until the lock file does not exist (with short sleep durations between polls)
+    # Keep polling to wait until the lock file does not exist (with short sleep durations between polls)
     path = Path(filepath)
-    lock_path = Path(str(path) + ".lock")
+    lock_path = path.with_suffix(".lock")
     while True:
         try:
             while lock_path.exists():
                 if datetime.now() > timeout_dt:
                     raise TimeoutError(timeout_msg)
                 sleep(0.01)
-
             break
+
         except PermissionError:
             if datetime.now() > timeout_dt:
                 raise TimeoutError(timeout_msg)
@@ -56,9 +53,10 @@ def acquire_file_lock(filepath: Union[str, PathLike], timeout_sec: float = None)
             if datetime.now() > timeout_dt:
                 raise TimeoutError(timeout_msg)
             sleep(0.01)
-    
+
     try:
         yield
+
     finally:
         # Cleanup by deleting the lock file
         remove(lock_path)
