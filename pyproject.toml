@@ -3,6 +3,9 @@ name = "pyreusableutilities"
 version = "1.2.3"
 description = "Contains a collection of libraries and software meant to be reused across projects."
 authors = ["Your Name <you@example.com>"]
+packages = [
+    { include = "PyReusableUtilities" }
+]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1"
