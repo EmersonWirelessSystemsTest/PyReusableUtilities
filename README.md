@@ -46,6 +46,24 @@ app.MainLoop()
 
 It is important to note that the data files should be defined in the `.spec` file for PyInstaller as the `datas` argument for the `Analysis` object instantiation.
 
+## ProcessUtils
+The `ProcessUtils` module contains the three functions `spawn_subprocess()`, `spawn_python_subprocess()`, and `iterate_process_stream_lines()`.
+
+The `spawn_subprocess()` function will create a subprocess with pipes using `Popen()`. The `spawn_python_subprocess()` is a wrapper around `spawn_subprocess()` that launches a Python script with the current execution environment. Both of these functions return the `Popen` object normally returned by `Popen()`.
+
+The `iterate_process_stream_lines()` function takes a `Popen` object and optionally a text encoding other than UTF-8 and returns a generator. Iterating over the generator will yield `CategorizedLine` objects until the subprocess finishes execution and all lines were yielded. A `CategorizedLine` object has a `data` member containing the line of text as a string or bytes and a `source` member indicating whether the line is from the stdout, stderr, or stdin stream.
+
+Here's an example of how to print the poem when importing `this` with Python.
+
+```python
+from PyReusableUtilities.ProcessUtils import iterate_process_stream_lines, spawn_python_subprocess
+
+
+p = spawn_python_subprocess("-c", "import this")
+for line in iterate_process_stream_lines(p):
+    print(line.data, end = "")
+```
+
 ## PackageSupport
 The `PackageSupport` module contains the `build_custom_pyinstaller_bootloader()` function. This is used download the PyInstaller source from GitHub and build a bootloader from scratch for the current Python environment. This can be helpful if PyInstaller executables are incorrectly flagged by antivirus programs. The function should be run in the build environment before running `pyinstaller.exe`.
 
