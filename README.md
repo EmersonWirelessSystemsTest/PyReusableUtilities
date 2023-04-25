@@ -45,3 +45,8 @@ app.MainLoop()
 ```
 
 It is important to note that the data files should be defined in the `.spec` file for PyInstaller as the `datas` argument for the `Analysis` object instantiation.
+
+## PackageSupport
+The `PackageSupport` module contains the `build_custom_pyinstaller_bootloader()` function. This is used download the PyInstaller source from GitHub and build a bootloader from scratch for the current Python environment. This can be helpful if PyInstaller executables are incorrectly flagged by antivirus programs. The function should be run in the build environment before running `pyinstaller.exe`.
+
+If a build script is created, this function can be called before running the PyInstaller subprocess.
