@@ -99,7 +99,7 @@ def spawn_subprocess(*args: str) -> Popen:
         kwargs["startupinfo"] = startup_info
         kwargs["env"] = environ
 
-    return Popen(args, stdout = PIPE, stderr = PIPE, **kwargs)
+    return Popen(args, stdout = PIPE, stderr = PIPE, stdin = PIPE, **kwargs)
 
 
 def spawn_python_subprocess(script: PathLike, *args: str) -> Popen:
