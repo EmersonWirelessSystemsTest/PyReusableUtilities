@@ -2,11 +2,12 @@ from enum import Enum
 from dataclasses import dataclass
 from os import PathLike
 from pathlib import Path
+from platform import system as platform_system
 from subprocess import Popen, PIPE
 from sys import executable as sys_executable
 from time import sleep
 from threading import Thread
-from typing import IO, Generator, List, Callable, Union
+from typing import IO, Generator, List, Callable, Optional, Union
 
 
 class eLineSource(Enum):
@@ -89,7 +90,14 @@ def spawn_subprocess(*args: str) -> Popen:
     process = spawn_subprocess("python", "-c", "import sys;print(sys.executable)")
     ```
     """
-    return Popen(args, stdout = PIPE, stderr = PIPE)
+    # The following code prevents Windows from launching blank console windows when packaging a script with PyInstaller
+    startup_info = None
+    if platform_system() == "Windows":
+        from subprocess import STARTUPINFO, STARTF_USESHOWWINDOW
+        startup_info = STARTUPINFO()
+        startup_info.dwFlags |= STARTF_USESHOWWINDOW
+
+    return Popen(args, stdout = PIPE, stderr = PIPE, startupinfo = startup_info)
 
 
 def spawn_python_subprocess(script: PathLike, *args: str) -> Popen:
