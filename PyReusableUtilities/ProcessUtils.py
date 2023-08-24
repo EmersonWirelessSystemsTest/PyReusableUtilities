@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from os import PathLike
+from os import environ, PathLike
 from pathlib import Path
 from platform import system as platform_system
 from subprocess import Popen, PIPE
@@ -91,13 +91,15 @@ def spawn_subprocess(*args: str) -> Popen:
     ```
     """
     # The following code prevents Windows from launching blank console windows when packaging a script with PyInstaller
-    startup_info = None
+    kwargs = {}
     if platform_system() == "Windows":
         from subprocess import STARTUPINFO, STARTF_USESHOWWINDOW
         startup_info = STARTUPINFO()
         startup_info.dwFlags |= STARTF_USESHOWWINDOW
+        kwargs["startupinfo"] = startup_info
+        kwargs["env"] = environ
 
-    return Popen(args, stdout = PIPE, stderr = PIPE, startupinfo = startup_info)
+    return Popen(args, stdout = PIPE, stderr = PIPE, **kwargs)
 
 
 def spawn_python_subprocess(script: PathLike, *args: str) -> Popen:
