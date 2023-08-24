@@ -97,7 +97,6 @@ def spawn_subprocess(*args: str) -> Popen:
         startup_info = STARTUPINFO()
         startup_info.dwFlags |= STARTF_USESHOWWINDOW
         kwargs["startupinfo"] = startup_info
-        # kwargs["env"] = environ
 
     return Popen(args, stdout = PIPE, stderr = PIPE, **kwargs)
 
