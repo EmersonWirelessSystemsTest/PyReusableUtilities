@@ -97,9 +97,9 @@ def spawn_subprocess(*args: str) -> Popen:
         startup_info = STARTUPINFO()
         startup_info.dwFlags |= STARTF_USESHOWWINDOW
         kwargs["startupinfo"] = startup_info
-        kwargs["env"] = environ
+        # kwargs["env"] = environ
 
-    return Popen(args, stdout = PIPE, stderr = PIPE, stdin = PIPE, **kwargs)
+    return Popen(args, stdout = PIPE, stderr = PIPE, **kwargs)
 
 
 def spawn_python_subprocess(script: PathLike, *args: str) -> Popen:
